@@ -163,7 +163,7 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 			// 取第一个数据 为合约价格
 			cPrice, err :=  strconv.ParseFloat(trade.Tick.Data[0].Price,64)
 			if err != nil{
-				fmt.Printf("%s <-----",err)
+				fmt.Println(err)
 				continue
 			}
 			tmp.FutruePrice = cPrice
@@ -176,6 +176,10 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 		goodClient := new(CashTradeClient.CashMarketInfo).Init("api.huobi.pro")
 		cashCode := change2CoinPaire(c.ContractCode)
 		data, err := goodClient.MarcketTrade(cashCode)
+		if err != nil{
+			fmt.Printf("%s <-----",err)
+			continue
+		}
 		if len(data.Tick.Data) >= 1 {
 			// 取第一个数据 为现货交易数据
 			gPrice :=  data.Tick.Data[0].Price
