@@ -1,5 +1,4 @@
-package Cash
-
+package CurrencyContract
 
 
 type LatestTradeRecord struct {
@@ -15,11 +14,10 @@ type tick struct {
 }
 
 type tradeData struct {
- 	
-	Amount float64 `json:"amount"`
+
+	Amount string `json:"amount"`
 	Direction string `json:"direction"`
 	Id float64 `json:"id"`
-	Price float64 `json:"price"`
-	TradeId int64 `json:"trade-id"`
+	Price string `json:"price"`
 	Ts int64 `json:"ts"`
 }

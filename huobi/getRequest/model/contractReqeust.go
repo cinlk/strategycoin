@@ -11,3 +11,7 @@ type GetContractAccountRequest struct {
 }
 
 
+type GetContractCodeRequest struct {
+	ContractCode string `json:"contract_code"`
+}
+
