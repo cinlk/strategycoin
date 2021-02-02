@@ -474,12 +474,12 @@ func main(){
 
 	for _, s := range  source{
 		if s.FutruePrice > s.CashCodePrice {
-			c := s.FutruePrice - s.CashCodePrice / s.CashCodePrice
-			fmt.Println("%s 差价幅度%f, 做空合约 买入现货", s.CashContractCode, c)
+			c := (s.FutruePrice - s.CashCodePrice) / s.CashCodePrice
+			fmt.Printf("%s 差价幅度%f, 做空合约 买入现货", s.CashContractCode, c)
 
 		}else{
-			c := s.CashCodePrice - s.FutruePrice / s.FutruePrice
-			fmt.Println( "%s 差价幅度%f, 做多合约   卖出现货（借币）",s.CashContractCode, c)
+			c := (s.CashCodePrice - s.FutruePrice) / s.FutruePrice
+			fmt.Printf( "%s 差价幅度%f, 做多合约   卖出现货（借币）",s.CashContractCode, c)
 
 
 		}
