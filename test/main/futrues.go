@@ -80,6 +80,37 @@ type ProfitResult struct {
 }
 
 
+// 现货 合约差价
+type FutureGoodsSpread struct {
+
+	Operation string `json:"operation"`
+	Margin float64 `json:"margin"`
+	ContractCode string `json:"contract_code"`
+
+	GoodsPrice float64 `json:"goods_price"`
+	FutruePrice  float64 `json:"futrue_price"`
+
+	FundingRate  float64 `json:"funding_rate"`
+	NextFundingRate float64 `json:"next_funding_rate"`
+
+
+}
+
+
+type allSpreadList []FutureGoodsSpread
+
+func (a allSpreadList) Len() int {
+	return  len(a)
+}
+func (a allSpreadList) Less(i, j int) bool{
+	return  a[i].Margin < a[j].Margin
+}
+
+func (a allSpreadList) Swap(i,j int) {
+	a[i],  a[j] = a[j], a[i]
+}
+
+
 // test cash client
 
 func testCashClient() {
@@ -231,6 +262,10 @@ func CointTradeProfit(coinCount float64, buyUsdtPrice float64, sellUsdtPrice flo
 	return math.Pow(1-rate, 2)*coinCount * sellUsdtPrice - coinCount*buyUsdtPrice
 }
 
+// 接币 卖出
+
+
+
 // 5 合约做空利润, 以币为单位, 1倍做空，得到该币的利润， 币换成u，用现货的值计算
 func CurrencyContractShortProfit(danbao float64, buyContractPrice, sellContractPrice, coinCount, buyRate, sellRate float64) float64{
 
@@ -262,22 +297,23 @@ func ContracteMoneyRate(coinCount float64, buyRate float64, danbao float64,
 func demotest(){
 
 	// 现货 买卖利润
-	c1 := CointTradeProfit(10, 500, 510,0.002)
+	c1 := CointTradeProfit(100, 101, 101.50,0.002)
 
 	// 合约做空 利润
-	c2 := CurrencyContractShortProfit(0.04,520, 510,
-		10, 0.0005, 0.0005)
-
+	c2 := CurrencyContractShortProfit(0.04,102, 101.60,
+		100, 0.0005, 0.0005)
 
 	// 合约做多 利润
 	c3 := CurrencyContractBuyProfit(0, 97.70, 99.50, 65.139,
 		0.0005,0.0005)
 
+
 	// 扩大倍数
 	r := ContracteMoneyRate(120.3, 0.0005,0.04,100.60, 100.500, 0.0016)
 
 	// 杠杆
-	fmt.Printf("%f %f %f %f", c1, c2*510,  c3, r)
+	fmt.Printf("%f %f %f %f", c1, c2*102.50,  c3, r)
+
 }
 
 
@@ -469,22 +505,44 @@ func main(){
 	//testGetCurrencyIndexs()
 
 
+
+
 	source :=  ContractCodePairePrices(allContractCodeAndRate())
-	// 计算合约和现货差价
+
+	var datas allSpreadList
+
 
 	for _, s := range  source{
-		if s.FutruePrice > s.CashCodePrice {
+		var tmp FutureGoodsSpread
+
+		if s.FutruePrice >= s.CashCodePrice {
+
+
 			c := (s.FutruePrice - s.CashCodePrice) / s.CashCodePrice
-			fmt.Printf("%s 差价幅度%f, 做空合约 买入现货", s.CashContractCode, c)
+			//fmt.Printf("%s 差价幅度%f, 做空合约 买入现货", s.CashContractCode, c)
+			tmp.Margin = c
+			tmp.Operation = "合约空现货买"
 
 		}else{
 			c := (s.CashCodePrice - s.FutruePrice) / s.FutruePrice
-			fmt.Printf( "%s 差价幅度%f, 做多合约   卖出现货（借币）",s.CashContractCode, c)
-
+			//fmt.Printf( "%s 差价幅度%f, 做多合约   卖出现货（借币）",s.CashContractCode, c)
+			tmp.Margin = c
+			tmp.Operation = "合约多现货卖"
 
 		}
-	}
 
+		tmp.FutruePrice = s.FutruePrice
+		tmp.ContractCode = s.CashContractCode
+		tmp.GoodsPrice = s.CashCodePrice
+		tmp.FundingRate = s.FundingRate
+		tmp.NextFundingRate = s.NextFundingRate
+		datas = append(datas, tmp)
+
+
+	}
+	sort.Sort(datas)
+	fmt.Printf("%v", datas)
+	//demotest()
 
 }
 
