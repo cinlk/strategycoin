@@ -13,12 +13,10 @@ func ConfigServer(cfgFile string) {
 
 	viper.SetConfigFile(cfgFile)
 	viper.AutomaticEnv()
+	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
-
-
-
 
 }

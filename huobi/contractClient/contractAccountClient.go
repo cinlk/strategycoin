@@ -13,20 +13,17 @@ type ContractAccountClient struct {
 	privateUrl *requestBuilder.PrivateUrlBuilder
 }
 
-
 func (c *ContractAccountClient) Init(accessKey, secretKey, host string) *ContractAccountClient {
 	c.privateUrl = new(requestBuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
 	return c
 }
 
-
-func (c *ContractAccountClient) AccountInfo(request *model.GetContractAccountRequest) (*contract.ContractAccountInfo ,error) {
-
+func (c *ContractAccountClient) AccountInfo(request *model.GetContractAccountRequest) (*contract.ContractAccountInfo, error) {
 
 	url := c.privateUrl.Build("POST", "/api/v1/contract_account_info", nil)
 
 	body, err := utils.ToJson(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -35,16 +32,14 @@ func (c *ContractAccountClient) AccountInfo(request *model.GetContractAccountReq
 	var info = contract.ContractAccountInfo{}
 
 	jErr := json.Unmarshal([]byte(resp), &info)
-	if jErr != nil{
+	if jErr != nil {
 		return nil, jErr
 	}
 
-	if info.Status == "ok" && info.Data != nil{
+	if info.Status == "ok" && info.Data != nil {
 		return &info, nil
 	}
 
 	return nil, errors.New(resp)
-
-
 
 }

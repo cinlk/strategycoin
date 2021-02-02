@@ -12,5 +12,5 @@ func Run() error {
 
 func init() {
 
-	rootCmd.AddCommand()
+	rootCmd.AddCommand(serviceCmd)
 }

@@ -1,11 +1,11 @@
 package requestBuilder
 
 import (
+	"BitCoinProfitStrategy/huobi/getRequest"
+	"BitCoinProfitStrategy/huobi/signer"
 	"fmt"
 	"net/url"
 	"time"
-	"BitCoinProfitStrategy/huobi/signer"
-	"BitCoinProfitStrategy/huobi/getRequest"
 )
 
 type PrivateUrlBuilder struct {
@@ -19,7 +19,6 @@ type PrivateUrlBuilder struct {
 	tKey    string
 
 	signer *signer.Signer
-
 }
 
 func (p *PrivateUrlBuilder) Init(accessKey string, secretKey string, host string) *PrivateUrlBuilder {
@@ -59,4 +58,3 @@ func (p *PrivateUrlBuilder) BuildWithTime(method string, path string, utcDate ti
 
 	return u
 }
-

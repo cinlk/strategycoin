@@ -6,6 +6,9 @@
     "acessKey": "3d2xc4v5bu-efb552c2-e82fa3ae-514ea",
     "secretKey": "341f09ef-aee86881-883c4dfe-ae6b2"
 
+  },
+  "server": {
+    "address": "127.0.0.1:9090"
   }
 
 }

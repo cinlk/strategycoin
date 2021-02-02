@@ -11,20 +11,18 @@ import (
 func initRedis() {
 
 	r := redis.NewClient(&redis.Options{
-		Addr: viper.GetString("redis.address"),
-		Password: viper.GetString("redis.password"),
-		DB: viper.GetInt("redis.db"),
-		WriteTimeout: viper.GetDuration("redis.wirteTimeout")*time.Second,
-		IdleTimeout: viper.GetDuration("redis.IdleTimeout")*time.Second,
+		Addr:         viper.GetString("redis.address"),
+		Password:     viper.GetString("redis.password"),
+		DB:           viper.GetInt("redis.db"),
+		WriteTimeout: viper.GetDuration("redis.wirteTimeout") * time.Second,
+		IdleTimeout:  viper.GetDuration("redis.IdleTimeout") * time.Second,
 	})
-
 
 	_, err := r.Ping(context.Background()).Result()
 
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 	return
-
 
 }

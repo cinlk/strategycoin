@@ -21,4 +21,3 @@ func (p *PublicUrlBuilder) Build(path string, request *getRequest.GetRequest) st
 		return result
 	}
 }
-

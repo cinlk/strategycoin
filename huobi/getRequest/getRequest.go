@@ -35,5 +35,3 @@ func (p *GetRequest) AddParam(property string, value string) *GetRequest {
 func (p *GetRequest) BuildParams() string {
 	return p.urls.Encode()
 }
-
-
