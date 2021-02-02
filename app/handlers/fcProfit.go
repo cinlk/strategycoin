@@ -68,15 +68,15 @@ type ProfitResult struct {
 
 // 现货 合约差价
 type FutureGoodsSpread struct {
-	Operation    string  `json:"operation"`
-	Margin       float64 `json:"margin"`
-	ContractCode string  `json:"contract_code"`
+	Operation    string  `json:"操作方式"`
+	Margin       float64 `json:"差价比率"`
+	ContractCode string  `json:"现货名称"`
 
-	GoodsPrice  float64 `json:"goods_price"`
-	FutruePrice float64 `json:"futrue_price"`
+	GoodsPrice  float64 `json:"现货价格"`
+	FutruePrice float64 `json:"合约价格"`
 
-	FundingRate     float64 `json:"funding_rate"`
-	NextFundingRate float64 `json:"next_funding_rate"`
+	FundingRate     float64 `json:"合约资金费率"`
+	NextFundingRate float64 `json:"下次合约资金费率"`
 }
 
 type allSpreadList []FutureGoodsSpread
