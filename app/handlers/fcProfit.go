@@ -149,24 +149,23 @@ func allContractCodeAndRate() []CurrencyContract.LatestFundingRatedata {
 
 	var wait sync.WaitGroup
 
-
 	for _, c := range contracts.Data {
 
-		tmp := c
+
 		if c.ContractStatus == 1 || c.ContractStatus == 5 || c.ContractStatus == 7 {
 			// 获取费率  次数多，频率限制
 			wait.Add(1)
-			go func() {
+			go func(d *CurrencyContract.ContractInfoData) {
 				defer func() {
 					wait.Done()
 				}()
-				data, err := client.CurrentFundingRate(tmp.ContractCode)
+				data, err := client.CurrentFundingRate(d.ContractCode)
 				if err != nil {
 					fmt.Printf("%s ---->", err)
 					return
 				}
 				res = append(res, *data.Data)
-			}()
+			}(&c)
 		}
 	}
 
@@ -269,6 +268,8 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 
 		}(&c)
 	}
+	wait.Wait()
+
 	return res
 
 }

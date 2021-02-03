@@ -3,10 +3,10 @@ package CurrencyContract
 type ContractInfo struct {
 	Status string `json:"status"`
 	Ts     int64  `json:"ts"`
-	Data   []data `json:"data"`
+	Data   []ContractInfoData `json:"data"`
 }
 
-type data struct {
+type ContractInfoData struct {
 	Symbol         string  `json:"symbol"`
 	ContractCode   string  `json:"contract_code"`
 	ContractSize   float64 `json:"contract_size"`
