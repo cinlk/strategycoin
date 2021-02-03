@@ -210,7 +210,7 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 			var tmp FutrueProfitRate
 
 
-			trade, err := client.LatestTradeRecord(c.ContractCode)
+			trade, err := client.LatestTradeRecord(m.ContractCode)
 			if err != nil {
 				fmt.Printf("%s --->", err)
 				return
@@ -224,14 +224,14 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 					return
 				}
 				tmp.FutruePrice = cPrice
-				tmp.CurrencyFutureCode = strings.ToLower(c.ContractCode)
+				tmp.CurrencyFutureCode = strings.ToLower(m.ContractCode)
 			} else {
 				return
 			}
 
 			// 币币交易 code 名字改变
 			goodClient := new(CashTradeClient.CashMarketInfo).Init("api.huobi.pro")
-			cashCode := change2CoinPaire(c.ContractCode)
+			cashCode := change2CoinPaire(m.ContractCode)
 
 			data, err := goodClient.MarcketTrade(cashCode)
 			if err != nil {
@@ -248,13 +248,13 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 				return
 			}
 
-			frate, err := strconv.ParseFloat(c.FundingRate, 64)
+			frate, err := strconv.ParseFloat(m.FundingRate, 64)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			erate, err := strconv.ParseFloat(c.EstimatedRate, 64)
+			erate, err := strconv.ParseFloat(m.EstimatedRate, 64)
 
 			if err != nil {
 				fmt.Println(err)
@@ -263,7 +263,7 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 
 			tmp.FundingRate = frate
 			tmp.NextFundingRate = erate
-			tmp.FundingTime, _ = msToTime(c.FundingTime)
+			tmp.FundingTime, _ = msToTime(m.FundingTime)
 			res = append(res, tmp)
 
 		}(&c)
