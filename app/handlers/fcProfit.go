@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -144,18 +145,32 @@ func allContractCodeAndRate() []CurrencyContract.LatestFundingRatedata {
 		panic(err)
 	}
 
+
+
+	var wait sync.WaitGroup
+
+
 	for _, c := range contracts.Data {
+
+		tmp := c
 		if c.ContractStatus == 1 || c.ContractStatus == 5 || c.ContractStatus == 7 {
 			// 获取费率  次数多，频率限制
-			data, err := client.CurrentFundingRate(c.ContractCode)
-			if err != nil {
-				fmt.Printf("%s ---->", err)
-				continue
-			}
-			res = append(res, *data.Data)
-
+			wait.Add(1)
+			go func() {
+				defer func() {
+					wait.Done()
+				}()
+				data, err := client.CurrentFundingRate(tmp.ContractCode)
+				if err != nil {
+					fmt.Printf("%s ---->", err)
+					return
+				}
+				res = append(res, *data.Data)
+			}()
 		}
 	}
+
+	wait.Wait()
 
 	sort.Slice(res, func(i, j int) bool {
 		r1, err := strconv.ParseFloat(res[i].FundingRate, 64)
@@ -182,67 +197,78 @@ func ContractCodePairePrices(codes []CurrencyContract.LatestFundingRatedata) []F
 		return nil
 	}
 	client := new(CurrencyPersistantContract.ContractMarketInfo).Init("api.btcgateway.pro")
+
+	var wait sync.WaitGroup
+
 	for _, c := range codes {
-		var tmp FutrueProfitRate
+		wait.Add(1)
 
-		trade, err := client.LatestTradeRecord(c.ContractCode)
-		if err != nil {
-			fmt.Printf("%s --->", err)
-			continue
-		}
+		go func(m *CurrencyContract.LatestFundingRatedata) {
 
-		if len(trade.Tick.Data) >= 1 {
-			// 取第一个数据 为合约价格
-			cPrice, err := strconv.ParseFloat(trade.Tick.Data[0].Price, 64)
+			defer func() {
+				wait.Done()
+			}()
+			var tmp FutrueProfitRate
+
+
+			trade, err := client.LatestTradeRecord(c.ContractCode)
+			if err != nil {
+				fmt.Printf("%s --->", err)
+				return
+			}
+
+			if len(trade.Tick.Data) >= 1 {
+				// 取第一个数据 为合约价格
+				cPrice, err := strconv.ParseFloat(trade.Tick.Data[0].Price, 64)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				tmp.FutruePrice = cPrice
+				tmp.CurrencyFutureCode = strings.ToLower(c.ContractCode)
+			} else {
+				return
+			}
+
+			// 币币交易 code 名字改变
+			goodClient := new(CashTradeClient.CashMarketInfo).Init("api.huobi.pro")
+			cashCode := change2CoinPaire(c.ContractCode)
+
+			data, err := goodClient.MarcketTrade(cashCode)
+			if err != nil {
+				fmt.Printf("%s <-----", err)
+				return
+			}
+			if len(data.Tick.Data) >= 1 {
+				// 取第一个数据 为现货交易数据
+				gPrice := data.Tick.Data[0].Price
+				tmp.CashCodePrice = gPrice
+				tmp.CashContractCode = cashCode
+
+			} else {
+				return
+			}
+
+			frate, err := strconv.ParseFloat(c.FundingRate, 64)
 			if err != nil {
 				fmt.Println(err)
-				continue
+				return
 			}
-			tmp.FutruePrice = cPrice
-			tmp.CurrencyFutureCode = strings.ToLower(c.ContractCode)
-		} else {
-			continue
-		}
 
-		// 币币交易 code 名字改变
-		goodClient := new(CashTradeClient.CashMarketInfo).Init("api.huobi.pro")
-		cashCode := change2CoinPaire(c.ContractCode)
+			erate, err := strconv.ParseFloat(c.EstimatedRate, 64)
 
-		data, err := goodClient.MarcketTrade(cashCode)
-		if err != nil {
-			fmt.Printf("%s <-----", err)
-			continue
-		}
-		if len(data.Tick.Data) >= 1 {
-			// 取第一个数据 为现货交易数据
-			gPrice := data.Tick.Data[0].Price
-			tmp.CashCodePrice = gPrice
-			tmp.CashContractCode = cashCode
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-		} else {
-			continue
-		}
+			tmp.FundingRate = frate
+			tmp.NextFundingRate = erate
+			tmp.FundingTime, _ = msToTime(c.FundingTime)
+			res = append(res, tmp)
 
-		frate, err := strconv.ParseFloat(c.FundingRate, 64)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		erate, err := strconv.ParseFloat(c.EstimatedRate, 64)
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		tmp.FundingRate = frate
-		tmp.NextFundingRate = erate
-		tmp.FundingTime, _ = msToTime(c.FundingTime)
-		res = append(res, tmp)
-
+		}(&c)
 	}
-
 	return res
 
 }

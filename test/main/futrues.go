@@ -447,39 +447,10 @@ func main() {
 	//testGetCurrencyIndexs()
 
 	//  速度优化，改成http 接口
-	source := ContractCodePairePrices(allContractCodeAndRate())
 
-	var datas allSpreadList
 
-	for _, s := range source {
-		var tmp FutureGoodsSpread
 
-		if s.FutruePrice >= s.CashCodePrice {
-
-			c := (s.FutruePrice - s.CashCodePrice) / s.CashCodePrice
-			//fmt.Printf("%s 差价幅度%f, 做空合约 买入现货", s.CashContractCode, c)
-			tmp.Margin = c
-			tmp.Operation = "合约空现货买"
-
-		} else {
-			c := (s.CashCodePrice - s.FutruePrice) / s.FutruePrice
-			//fmt.Printf( "%s 差价幅度%f, 做多合约   卖出现货（借币）",s.CashContractCode, c)
-			tmp.Margin = c
-			tmp.Operation = "合约多现货卖"
-
-		}
-
-		tmp.FutruePrice = s.FutruePrice
-		tmp.ContractCode = s.CashContractCode
-		tmp.GoodsPrice = s.CashCodePrice
-		tmp.FundingRate = s.FundingRate
-		tmp.NextFundingRate = s.NextFundingRate
-		datas = append(datas, tmp)
-
-	}
-
-	sort.Sort(sort.Reverse(datas))
-	fmt.Printf("%v", datas)
+	fmt.Printf("%v", allContractCodeAndRate())
 	//demotest()
 
 }
